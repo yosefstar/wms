@@ -20,7 +20,7 @@ class AdminUserSeeder extends Seeder
             'password' => Hash::make('admin_password'),
             'user_type' => 1,
             'user_nickname' => 'Admin',
-            'user_email' => 'admin@example.com',
+            'email' => 'admin@example.com',
             'stop_flag' => 0,
             'created_at' => now(),
             'updated_at' => now(),
