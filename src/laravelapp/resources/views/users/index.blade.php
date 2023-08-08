@@ -1,18 +1,16 @@
-<!-- resources/views/users/index.blade.php -->
-
 @extends('layouts.app')
 
 @section('content')
 <div class="container">
     <h2>ユーザー一覧</h2>
-    <table class="table">
+    <table class="table table-bordered">
         <thead>
             <tr>
-                <th>ユーザーID</th>
-                <th>名前</th>
+                <th>ID</th>
+                <th>ユーザー名</th>
                 <th>アイコン</th>
                 <th>ニックネーム</th>
-                <th>登録日時</th>
+                <th>作成日時</th>
                 <th>操作</th>
             </tr>
         </thead>
@@ -30,7 +28,11 @@
                 </td>
                 <td>{{ $user->user_nickname }}</td>
                 <td>{{ $user->created_at }}</td>
-
+                <td>
+                    <a href="{{ route('users.show', $user->id) }}">詳細</a>
+                    <a href="{{ route('users.edit', $user->id) }}">編集</a>
+                    <a href="{{ route('users.stop', $user->id) }}">停止</a>
+                </td>
             </tr>
             @endforeach
         </tbody>

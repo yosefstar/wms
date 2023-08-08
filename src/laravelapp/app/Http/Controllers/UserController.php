@@ -42,7 +42,18 @@ class UserController extends Controller
             'bank_account_holder_name' => 'max:100',
         ]);
 
-        User::create($request->all());
+        $userData = $request->all();
+
+        if ($request->hasFile('user_icon')) {
+            $file = $request->file('user_icon');
+            $filename = $file->getClientOriginalName();
+            $file->storeAs('public/user_icons', $filename);
+            $userData['user_icon'] = $filename;
+        } else {
+            $userData['user_icon'] = null; // ファイルがアップロードされなかった場合はnullにする
+        }
+
+        User::create($userData);
 
         return redirect()->route('users.index')->with('success', 'ユーザーが正常に作成されました。');
     }
@@ -50,25 +61,37 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show($id)
     {
-        //
+        $user = User::findOrFail($id);
+        return view('users.show', compact('user'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
+        $user = User::findOrFail($id);
+        return view('users.edit', compact('user'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $user = User::find($id);
+        $user->user_name = $request->input('user_name');
+        // 他の更新処理...
+
+        if ($request->hasFile('user_icon')) {
+            $user->storeUserIcon($request->file('user_icon'));
+        }
+
+        $user->save();
+
+        return redirect()->route('users.edit', $user->id)->with('success', 'ユーザー情報が更新されました。');
     }
 
     /**
@@ -77,5 +100,14 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function stop($id)
+    {
+        $user = User::findOrFail($id);
+        // アカウントを停止する処理を実行
+        $user->update(['stop_flag' => 0]);
+
+        return redirect()->route('users.index')->with('success', 'ユーザーアカウントが停止されました。');
     }
 }
