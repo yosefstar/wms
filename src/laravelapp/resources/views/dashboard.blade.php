@@ -34,7 +34,7 @@
     <div class="row mt-4">
         <div class="col-md-4">
             <div class="list-group">
-                <a href="{{ route('projects.index') }}" class="list-group-item list-group-item-action">案件管理</a>
+                <a href="{{ route('jobs.index') }}" class="list-group-item list-group-item-action">案件管理</a>
                 <a href="{{ route('billing.index') }}" class="list-group-item list-group-item-action">請求管理</a>
                 <a href="{{ route('announcements.index') }}" class="list-group-item list-group-item-action">お知らせ管理</a>
                 <a href="{{ route('users.index') }}" class="list-group-item list-group-item-action">ユーザー管理</a>

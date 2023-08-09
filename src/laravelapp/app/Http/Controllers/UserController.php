@@ -48,9 +48,9 @@ class UserController extends Controller
             $file = $request->file('user_icon');
             $filename = $file->getClientOriginalName();
             $file->storeAs('public/user_icons', $filename);
-            $userData['user_icon'] = $filename;
+            $userData['user_icon'] = 'storage/user_icons/' . $filename;
         } else {
-            $userData['user_icon'] = null; // ファイルがアップロードされなかった場合はnullにする
+            $userData['user_icon'] = null;
         }
 
         User::create($userData);
