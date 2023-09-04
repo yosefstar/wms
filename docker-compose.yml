@@ -34,3 +34,4 @@ services:
      - ./docker/db/my.cnf:/etc/mysql/conf.d/my.cnf
    ports:
      - 3306:3306
+     

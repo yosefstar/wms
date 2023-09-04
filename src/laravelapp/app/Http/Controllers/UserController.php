@@ -83,7 +83,22 @@ class UserController extends Controller
     {
         $user = User::find($id);
         $user->user_name = $request->input('user_name');
-        // 他の更新処理...
+        // $user->password = $request->input('password');
+        // $user->user_type = $request->input('user_type');
+        $user->user_nickname = $request->input('user_nickname');
+        $user->stop_flag = $request->input('stop_flag');
+        $user->postal_code = $request->input('postal_code');
+        $user->prefecture_id = $request->input('prefecture_id');
+        $user->city = $request->input('city');
+        $user->street_address = $request->input('street_address');
+        $user->building_and_room = $request->input('building_and_room');
+        $user->user_phone_number = $request->input('user_phone_number');
+        $user->email = $request->input('email');
+        $user->bank_name = $request->input('bank_name');
+        $user->branch_name = $request->input('branch_name');
+        $user->bank_account_type = $request->input('bank_account_type');
+        $user->bank_account_number = $request->input('bank_account_number');
+        $user->bank_account_holder_name = $request->input('bank_account_holder_name');
 
         if ($request->hasFile('user_icon')) {
             $user->storeUserIcon($request->file('user_icon'));
@@ -109,5 +124,10 @@ class UserController extends Controller
         $user->update(['stop_flag' => 0]);
 
         return redirect()->route('users.index')->with('success', 'ユーザーアカウントが停止されました。');
+    }
+
+    public function showUserInfo()
+    {
+        return view('user');
     }
 }

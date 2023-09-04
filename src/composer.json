@@ -1,0 +1,6 @@
+{
+    "require": {
+        "jeroennoten/laravel-adminlte": "^3.9",
+        "dompdf/dompdf": "^2.0"
+    }
+}

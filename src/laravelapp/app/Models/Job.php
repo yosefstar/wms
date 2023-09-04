@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
+
 
 class Job extends Model
 {
@@ -33,5 +35,31 @@ class Job extends Model
         'job_expense' => 'integer',
     ];
 
-    // 他の関連性やメソッドを追加する可能性があります
+    // 請負業者のニックネームを取得する関数
+    public function contractorNickname()
+    {
+        $contractor = User::find($this->job_contractor_id);
+        return $contractor ? $contractor->user_nickname : 'Unknown Contractor';
+    }
+
+    public function jobFiles()
+    {
+        return $this->hasMany(JobFile::class);
+    }
+
+    public function isEditableByCurrentUser()
+    {
+        // 管理者ユーザーは常に編集可能
+        if (Auth::user()->user_type === 1) {
+            return true;
+        }
+
+        // ユーザーの場合は自分の案件のみ編集可能
+        return $this->job_contractor_id === Auth::id();
+    }
+
+    public function client()
+    {
+        return $this->belongsTo(User::class, 'job_contractor_id');
+    }
 }

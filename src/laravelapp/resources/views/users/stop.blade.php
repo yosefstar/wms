@@ -1,6 +1,6 @@
 <!-- resources/views/users/stop.blade.php -->
 
-@extends('layouts.app')
+@extends('layouts.common')
 
 @section('content')
 <div class="container">
