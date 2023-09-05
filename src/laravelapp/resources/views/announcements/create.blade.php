@@ -76,8 +76,6 @@
 <script src="../../plugins/codemirror/mode/css/css.js"></script>
 <script src="../../plugins/codemirror/mode/xml/xml.js"></script>
 <script src="../../plugins/codemirror/mode/htmlmixed/htmlmixed.js"></script>
-<!-- AdminLTE for demo purposes -->
-<script src="../../dist/js/demo.js"></script>
 <!-- Page specific script -->
 <script>
     $(function() {

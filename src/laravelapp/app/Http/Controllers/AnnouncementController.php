@@ -10,10 +10,12 @@ class AnnouncementController extends Controller
 {
     public function index()
     {
-        // ここにお知らせ一覧のデータ取得などの処理を追加
-        // 例えば、$notifications = Notification::all();
-        // return view('notifications.index', compact('notifications'));
-        return view('announcements');
+        // お知らせデータをデータベースから取得
+        $announcements = Announcement::published()->get();
+        $expiredAnnouncements = Announcement::expired()->get();
+
+        // ビューにデータを渡してお知らせ一覧を表示
+        return view('announcements.index', compact('announcements', 'expiredAnnouncements'));
     }
 
     public function store(Request $request)
@@ -29,19 +31,34 @@ class AnnouncementController extends Controller
         // バリデーションを実行
         $request->validate($rules);
 
-        // フォームから送信されたデータを取得
-        $data = $request->only(['title', 'content', 'start_date', 'end_date']);
+        // ログイン中のユーザーのIDを取得
+        $userId = auth()->user()->id;
 
-        // ユーザーIDをログイン中のユーザーから取得
-        $data['user_id'] = auth()->user()->id;
-
-        // Announcementモデルを使用してデータベースに保存
-        Announcement::create($data);
+        // フォームからのデータで新しいお知らせを作成
+        Announcement::create([
+            'user_id' => $userId, // ユーザーIDを設定
+            'title' => $request->input('title'),
+            'content' => $request->input('content'),
+            'start_date' => $request->input('start_date'),
+            'end_date' => $request->input('end_date'),
+        ]);
 
         // ニュース一覧ページにリダイレクト
-        return redirect()->route('announcements.index');
+        return redirect()->route('announcements.create');
     }
 
+    public function create()
+    {
+        // お知らせ作成ページの表示
+        return view('announcements.create');
+    }
 
-    // 他のメソッドや処理を追加
+    public function show($id)
+    {
+        // $id を使用して詳細情報をデータベースから取得
+        $announcement = Announcement::find($id);
+
+        // ビューにデータを渡して詳細ページを表示
+        return view('announcements.show', compact('announcement'));
+    }
 }

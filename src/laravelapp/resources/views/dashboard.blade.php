@@ -39,7 +39,8 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title">管理者からのお知らせ</h5>
-                <p class="card-text">4件</p>
+                <p class="card-text"></p>
+                <a href="{{ route('announcements.index') }}" class="card-link">{{ $announcements->count() }}件</a>
             </div>
         </div>
     </div>

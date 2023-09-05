@@ -49,7 +49,7 @@
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item active">案件管理</li>
+                    <li class="breadcrumb-item active">Projects</li>
                 </ol>
             </div>
         </div>
@@ -94,9 +94,10 @@
                         <td>
 
                             <a href="{{ route('jobs.edit', ['id' => $job->id]) }}" class="btn btn-warning">編集</a>
-
                         </td>
-                        <td><!-- DMリンクをここに表示 --></td>
+                        <td>
+                            <a href="{{ route('dm.index', ['jobId' => $job->id]) }}" class="btn btn-primary">掲示板を表示</a>
+                        </td>
                     </tr>
                     @endforeach
 

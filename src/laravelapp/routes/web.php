@@ -11,6 +11,7 @@ use App\Http\Controllers\JobFileController;
 use App\Http\Controllers\InvoicesController;
 use App\Http\Controllers\CustomLogoutController;
 use App\Http\Controllers\DMController;
+use App\Http\Controllers\CommentController;
 
 
 /*
@@ -67,7 +68,10 @@ Route::post('/jobs/{job_id}/upload/file_2', [JobFileController::class, 'uploadFi
 Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');
 
 Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
-Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+Route::get('/announcements/create', [AnnouncementController::class, 'create'])->name('announcements.create'); // 'create' メソッドを呼び出す
+Route::post('/announcements/create', [AnnouncementController::class, 'store'])->name('announcements.store');
+Route::get('/announcements/show/{id}', [AnnouncementController::class, 'show'])->name('announcements.show');
+
 
 
 Route::get('/test', function () {
@@ -80,6 +84,12 @@ Route::get('/common', function () {
 
 Route::get('/invoices', [InvoicesController::class, 'index'])->name('invoices.index');
 
-Route::get('/dm', [DMController::class, 'index'])->name('dm.index');
+Route::get('/dm/{jobId}', [DMController::class, 'index'])->name('dm.index');
+Route::post('/dm/store', [DMController::class, 'store'])->name('dm.store');
+Route::get('/dm/create', [DMController::class, 'create'])->name('dm.create');
+
+
+Route::post('/comments/store/{dmId}', [CommentController::class, 'store'])->name('comments.store');
+
 
 Route::get('/pdf', [InvoicesController::class, 'createPdf'])->name('invoices.pdf');

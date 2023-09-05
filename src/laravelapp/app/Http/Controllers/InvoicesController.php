@@ -21,7 +21,8 @@ class InvoicesController extends Controller
 
     public function createPdf()
     {
-        $pdf = PDF::loadView('invoices.pdf');
+        $jobs = Job::all();
+        $pdf = PDF::loadView('invoices.pdf', ['jobs' => $jobs]);
         return $pdf->download('納品書.pdf'); //こちらがダウンロード用機能
     }
 }
