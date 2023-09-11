@@ -13,6 +13,8 @@ use App\Http\Controllers\CustomLogoutController;
 use App\Http\Controllers\DMController;
 use App\Http\Controllers\CommentController;
 
+use App\Http\Controllers\UnreadAnnouncementController;
+use App\Http\Controllers\SidebarController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,16 +56,22 @@ Route::resource('jobs', JobController::class);
 Route::get('/jobs/{id}/edit', [JobController::class, 'edit'])->name('jobs.edit');
 Route::post('jobs/store', [JobController::class, 'store'])->name('jobs.store');
 
+Route::get('jobs', [JobController::class, 'index'])->name('jobs.index');
+
 Route::put('/jobs/{id}', [JobController::class, 'update'])->name('jobs.update');
 Route::delete('/jobs/{id}/delete', [JobController::class, 'delete'])->name('jobs.delete');
 Route::get('jobs/{job}/edit', [JobFileController::class, 'edit'])->name('jobs.edit');
 Route::put('jobs/{job}/update', [JobController::class, 'updateJobStatus'])->name('updateJobStatus');
-Route::put('/jobs/{id}/update-end-date', [JobController::class, 'updateEndDate'])->name('jobs.updateEndDate');
+Route::get('/jobs/{id}/update-end-date', [JobController::class, 'updateEndDate'])->name('jobs.updateEndDate');
+Route::put('/jobs/{id}/update-job-end-date', [JobController::class, 'updateJobEndDate'])->name('jobs.updateJobEndDate');
+Route::post('/jobs/{jobId}/complete', [JobController::class, 'complete'])->name('jobs.complete');
+Route::get('/search', [JobController::class, 'search'])->name('search');
 
 Route::get('/files/{id}/download', [JobFileController::class, 'downloadFile'])->name('download.file');
 Route::get('/files/{id}/delete', [JobFileController::class, 'deleteFile'])->name('delete.file');
 Route::post('/jobs/{job_id}/upload/file_1', [JobFileController::class, 'uploadFile_1'])->name('upload.file_1');
 Route::post('/jobs/{job_id}/upload/file_2', [JobFileController::class, 'uploadFile_2'])->name('upload.file_2');
+
 
 Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');
 
@@ -83,13 +91,35 @@ Route::get('/common', function () {
 });
 
 Route::get('/invoices', [InvoicesController::class, 'index'])->name('invoices.index');
+Route::get('/invoice/test', [InvoicesController::class, 'showTestInvoice']);
+Route::post('/submit-invoice', [InvoicesController::class, 'submitInvoice'])->name('submitInvoice');
+Route::post('/create-pdf-and-save-invoice', [InvoicesController::class, 'createPdfAndSaveInvoice'])->name('createPdfAndSaveInvoice');
+Route::post('/update-invoice/{invoiceId}', [InvoicesController::class, 'updateInvoice'])->name('updateInvoice');
+Route::get('/inovoices/admin-index', [InvoicesController::class, 'adminIndex'])->name('adminIndex');
+
 
 Route::get('/dm/{jobId}', [DMController::class, 'index'])->name('dm.index');
 Route::post('/dm/store', [DMController::class, 'store'])->name('dm.store');
+
+Route::get('/dm/usersIndex/{jobClientId}', [DMController::class, 'usersIndex'])->name('dm.usersIndex');
+
+Route::post('/dm/users/store/{userId}', [DMController::class, 'usersStore'])->name('dm.usersStore');
+
 Route::get('/dm/create', [DMController::class, 'create'])->name('dm.create');
 
+Route::get('unreadDm', [DMController::class, 'unreadDm'])->name('unreadDm');
 
 Route::post('/comments/store/{dmId}', [CommentController::class, 'store'])->name('comments.store');
 
 
 Route::get('/pdf', [InvoicesController::class, 'createPdf'])->name('invoices.pdf');
+
+Route::middleware(['auth'])->group(function () {
+    // 未読お知らせをカウントするためのルート
+    Route::get('/unread-announcements/count', [UnreadAnnouncementController::class, 'countUnreadAnnouncements'])
+        ->name('unread-announcements.count');
+
+    // 未読お知らせを既読にするためのルート
+    Route::post('/unread-announcements/mark-as-read/{id}', [UnreadAnnouncementController::class, 'markAsRead'])
+        ->name('unread-announcements.mark-as-read');
+});

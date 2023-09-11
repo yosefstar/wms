@@ -28,30 +28,44 @@
                         <p>ダッシュボード</p>
                     </a>
                 </li>
+
                 <li class="nav-item">
+                    @php
+                    $userType = Auth::user()->user_type;
+                    @endphp
+
+                    @if ($userType === 2)
                     <a href="{{ route('jobs.index') }}" class="nav-link">
-                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <i class="nav-icon fas fa-copy"></i>
+                        <p>案件管理だ</p>
+                    </a>
+                    @elseif ($userType === 1)
+                    <a href="{{ route('adminIndex') }}" class="nav-link">
+                        <i class="nav-icon fas fa-copy"></i>
                         <p>案件管理</p>
                     </a>
+                    @endif
                 </li>
                 <li class="nav-item">
                     <a href="{{ route('invoices.index') }}" class="nav-link">
-                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <i class="nav-icon fas fa-edit"></i>
                         <p>請求管理</p>
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ route('announcements.index') }}" class="nav-link">
-                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <i class="nav-icon far fa-envelope"></i>
                         <p>お知らせ管理</p>
                     </a>
                 </li>
+                @if (Auth::user()->user_type === 1)
                 <li class="nav-item">
                     <a href="{{ route('users.index') }}" class="nav-link">
-                        <i class="nav-icon fas fa-tachometer-alt"></i>
+                        <i class="nav-icon fas fa-table"></i>
                         <p>ユーザー管理</p>
                     </a>
                 </li>
+                @endif
             </ul>
         </nav>
         <!-- /.sidebar-menu -->

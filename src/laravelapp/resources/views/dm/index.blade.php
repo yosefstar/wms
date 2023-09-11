@@ -24,86 +24,29 @@
 
         <!-- DIRECT CHAT -->
         <div class="card direct-chat direct-chat-primary">
-            <div class="card-header">
-                <h3 class="card-title">Direct Chat</h3>
-
-                <div class="card-tools">
-                    <span title="3 New Messages" class="badge badge-primary">3</span>
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <button type="button" class="btn btn-tool" title="Contacts" data-widget="chat-pane-toggle">
-                        <i class="fas fa-comments"></i>
-                    </button>
-                    <button type="button" class="btn btn-tool" data-card-widget="remove">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
             <!-- /.card-header -->
             <div class="card-body">
                 <!-- Conversations are loaded here -->
                 <div class="direct-chat-messages">
-                    @foreach($dms as $dm)
-                    @if ($dm->user_id == Auth::id())
-                    <!-- 自分のメッセージは右寄せ -->
-                    <div class="direct-chat-msg right">
+                    @foreach ($dms as $dm)
+                    @if ($dm->job_id == $jobId)
+                    <div class="direct-chat-msg @if ($dm->user_id === auth()->user()->id) right @endif">
                         <div class="direct-chat-infos clearfix">
-                            <span class="direct-chat-name float-right">{{ Auth::user()->user_name }}</span>
-                            <span class="direct-chat-timestamp float-left">{{ $dm->created_at->format('d M H:i A') }}</span>
+                            <span class="direct-chat-name float-left">{{ $dm->created_at->format('d M H:i A') }}</span>
+                            <span class="direct-chat-timestamp float-right">{{ $dm->user->user_name }}</span>
                         </div>
-                        <img class="direct-chat-img" src="{{ Auth::user()->user_icon }}" alt="message user image">
+                        <img class="direct-chat-img" src="{{ $dm->user->user_icon }}" alt="message user image">
                         <div class="direct-chat-text">
-                            {{ $dm->content }}
-                        </div>
-                    </div>
-                    @else
-                    <!-- 他のユーザーのメッセージは左寄せ -->
-                    <div class="direct-chat-msg">
-                        <div class="direct-chat-infos clearfix">
-                            <span class="direct-chat-name float-left">{{ Auth::user()->user_name }}</span>
-                            <span class="direct-chat-timestamp float-right">{{ $dm->created_at->format('d M H:i A') }}</span>
-                        </div>
-                        <img class="direct-chat-img" src="{{ Auth::user()->user_icon }}" alt="message user image">
-                        <div class="direct-chat-text">
-                            {{ $dm->content }}
+                            <p>{{ $dm->content }}</p>
                         </div>
                     </div>
                     @endif
                     @endforeach
                 </div>
 
-
-                <!-- Contacts are loaded here -->
-                <div class="direct-chat-contacts">
-                    <ul class="contacts-list">
-                        <li>
-                            <a href="#">
-                                <img class="contacts-list-img" src="dist/img/user1-128x128.jpg" alt="User Avatar">
-
-                                <div class="contacts-list-info">
-                                    <span class="contacts-list-name">
-                                        Count Dracula
-                                        <small class="contacts-list-date float-right">2/28/2015</small>
-                                    </span>
-                                    <span class="contacts-list-msg">How have you been? I was...</span>
-                                </div>
-                                <!-- /.contacts-list-info -->
-                            </a>
-                        </li>
-                        <!-- End Contact Item -->
-                    </ul>
-                    <!-- /.contacts-list -->
-                </div>
-                <!-- /.direct-chat-pane -->
             </div>
             <!-- /.card-body -->
             <div class="card-footer">
-                @php
-                $dmExists = \App\Dm::where('job_id', $jobId)->exists();
-                @endphp
-
-                @if (!$dmExists)
                 <form method="POST" action="{{ route('dm.store') }}">
                     @csrf
                     <div class="form-group">
@@ -112,9 +55,6 @@
                     <input type="hidden" name="job_id" value="{{ $jobId }}">
                     <button type="submit" class="btn btn-primary">送信</button>
                 </form>
-                @else
-                <p>このジョブに関するDMが既に存在します。</p>
-                @endif
             </div>
             <!-- /.card-footer-->
         </div>

@@ -1,16 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class CreateInvoicesTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::create('invoices', function (Blueprint $table) {
@@ -18,6 +13,7 @@ class CreateInvoicesTable extends Migration
             $table->unsignedBigInteger('user_id')->comment('ユーザーID(案件発注者)');
             $table->string('file_name', 255)->comment('ファイル名');
             $table->string('file_path', 255)->comment('ファイルパス');
+            $table->string('billing_month', 255)->nullable()->comment('請求月');
             $table->integer('submit_status')->default(null)->comment('提出ステータス');
             $table->timestamps(); // updated_at & created_at
 
@@ -28,10 +24,8 @@ class CreateInvoicesTable extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('invoices');
     }

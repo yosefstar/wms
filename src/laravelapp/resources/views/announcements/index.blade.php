@@ -15,6 +15,13 @@
                 </ol>
             </div>
         </div>
+        @if ($user->user_type == 1)
+        <div class="row mb-2">
+            <div class="col-sm-12">
+                <a href="{{ route('announcements.create') }}" class="btn btn-primary float-right">新しいお知らせを作成</a>
+            </div>
+        </div>
+        @endif
     </div><!-- /.container-fluid -->
 </section>
 

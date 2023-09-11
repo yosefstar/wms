@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 
 class JobController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         if (Auth::user()->user_type === 2) {
             $jobs = Job::where('job_contractor_id', Auth::id())->get();
@@ -19,7 +19,12 @@ class JobController extends Controller
             $jobs = Job::all();
         }
 
-        return view('jobs.index', compact('jobs'));
+        $user = Auth::user();
+
+        $selectedStatus = $request->input('status', '');
+        $writerOptions = $this->getWriterOptions();
+        $selectedWriter = $request->input('writer', '');
+        return view('jobs.index', compact('user', 'jobs', 'selectedStatus', 'writerOptions', 'selectedWriter',));
     }
 
     protected function getContractorNickname($contractorId)
@@ -123,24 +128,100 @@ class JobController extends Controller
         return view('jobs.show', compact('job'));
     }
 
-    public function updateJobStatus(Request $request, Job $job)
+    public function updateJobEndDate(Request $request, $jobId)
     {
-        $newJobStatus = $request->input('new_job_status');
+        // フォームから納品予定日を取得
+        $jobEndDate = $request->input('job_end_date');
 
-        $job->update(['job_status' => 4]);
+        // データベースの該当するジョブを特定
+        $job = Job::find($jobId);
 
-        return view('jobs.show', compact('job'));
-    }
-
-    public function updateEndDate(Request $request, $id)
-    {
-        $job = Job::findOrFail($id);
-
-        // リクエストから送信された新しい日付を取得して job_end_date を更新
-        $newEndDate = $request->input('job_end_date');
-        $job->job_end_date = $newEndDate;
+        // 納品予定日を設定し、job_statusを2に変更
+        $job->job_end_date = $jobEndDate;
+        $job->job_status = 2;
         $job->save();
 
-        return view('jobs.show', compact('job'));
+        // 成功メッセージをセット
+        session()->flash('success', 'ジョブステータスが更新されました.');
+
+        return view('jobs.edit', compact('job'));
+    }
+
+    public function complete(Request $request, $jobId)
+    {
+        // フォームから送信されたupdate_statusの値を取得
+        $updateStatus = $request->input('update_status');
+
+        // データベースの該当するジョブを特定
+        $job = Job::find($jobId);
+
+        if ($job) {
+            // job_statusをフォームからの値に変更
+            $job->job_status = $updateStatus;
+
+            // job_check_dateを現在の日付と時間に更新
+            $job->job_check_date = now();  // Carbonのnow()関数を使用
+
+            // 変更を保存
+            $job->save();
+
+            // 成功メッセージをセット
+            session()->flash('success', 'ジョブステータスが更新されました。');
+        } else {
+            // ジョブが見つからない場合のエラーメッセージをセット
+            session()->flash('error', 'ジョブが見つかりませんでした。');
+        }
+
+        // リダイレクトまたは適切なアクションを実行
+        return redirect()->back();
+    }
+
+
+    private function mapStatusToValue($statusOption)
+    {
+        switch ($statusOption) {
+            case '対応中':
+                return 2;
+            case '納品済':
+                return 3;
+            case '検収済':
+                return 4;
+            default:
+                return null; // 不明なオプションの場合は null などを返す
+        }
+    }
+
+    public function search(Request $request)
+    {
+        // フォームから案件名を取得
+        $jobName = $request->input('job_name');
+        $selectedWriter = $request->input('writer'); // 選択されたライター名
+        $selectedStatus = $request->input('status', 'すべて');
+        // データベースクエリを構築
+        $jobsQuery = Job::query();
+
+        if (!empty($jobName)) {
+            $jobsQuery->where('job_name', 'like', '%' . $jobName . '%');
+        }
+
+        if (!empty($selectedWriter)) {
+            // 選択されたライター名に基づいて絞り込みを追加
+            $jobsQuery->where('job_client_id', $selectedWriter);
+        }
+
+        if (!empty($selectedStatus)) {
+            // 選択されたステータスに基づいて絞り込みを追加
+            $jobsQuery->where('job_status', $selectedStatus);
+        }
+
+        $jobs = $jobsQuery->get();
+        $writerOptions = $this->getWriterOptions();
+        $selectedWriter = $request->input('writer');
+        return view('jobs.index', compact('jobs', 'writerOptions', 'selectedWriter', 'selectedStatus'));
+    }
+
+    private function getWriterOptions()
+    {
+        return User::where('user_type', 2)->pluck('user_name', 'id');
     }
 }

@@ -19,6 +19,7 @@ services:
    # Docker HubからMySQL5.7の公式イメージをダウンロードしてくる指定
    image: mysql:8.0
    container_name: wms_db
+   restart: no  # この行を追加
    # コンテナ内の環境変数を指定。環境変数を渡すとビルド時に設定してくれるDockerイメージがあるので、利用の際はDocker Hubのサイトで確認すると良い
    environment:
      MYSQL_ROOT_PASSWORD: root
@@ -33,5 +34,5 @@ services:
      - ./docker/db/data:/var/lib/mysql
      - ./docker/db/my.cnf:/etc/mysql/conf.d/my.cnf
    ports:
-     - 3306:3306
+     - "3307:3306"
      

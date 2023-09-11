@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Invoice;
 
 class User extends Authenticatable
 {
@@ -48,5 +49,11 @@ class User extends Authenticatable
         $path = $file->store('public/user_icons');
         $this->user_icon = Storage::url($path);
         $this->save();
+    }
+
+    public function invoices()
+    {
+        return $this->belongsToMany(Invoice::class, 'invoice_user')
+            ->withPivot('billing_month');
     }
 }

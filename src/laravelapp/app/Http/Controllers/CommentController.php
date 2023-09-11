@@ -11,27 +11,24 @@ class CommentController extends Controller
 {
     public function store(Request $request, $dmId)
     {
-        $validatedData = $request->validate([
-            'content' => 'required|string',
-        ]);
-
+        // ログインユーザーのIDを取得して設定
+        $userId = Auth::id();
 
         $comment = new Comment();
-        $comment->content = $validatedData['content'];
-        $comment->user_id = Auth::id();
+        $comment->content = $request->input('content'); // contentをセット
+        $comment->user_id = $userId;
         $comment->dm_id = $dmId;
-
+        $comment->save();
 
         return redirect()->back()->with('success', 'コメントが送信されました');
     }
 
-    public function show($dmId)
-    {
-        // $dmId を使用して必要なデータを取得
 
-        return view('comments.show', [
-            'dmId' => $dmId,
-            // その他のデータをここで取得
-        ]);
+    public function show($dm_id)
+    {
+        // 現在のDMページIDと一致するコメントを取得
+        $comments = Comment::where('dm_id', $dm_id)->get();
+
+        return view('dm.index', ['comments' => $comments, 'currentDmPageId' => $dm_id]);
     }
 }

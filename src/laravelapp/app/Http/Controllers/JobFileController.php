@@ -49,24 +49,21 @@ class JobFileController extends Controller
 
         // Retrieve selected job ID from the form
         $selectedJobId = $request->job_id;
-        $file = $request->file('file');
-        $fileName = $file->getClientOriginalName();
-        $filePath = $file->store('public/files'); // Assuming 'files' is your storage directory
+        $files = $request->file('file');
+        foreach ($files as $file) {
+            $fileName = $file->getClientOriginalName();
+            $filePath = $file->store('public/files'); // Assuming 'files' is your storage directory
 
+            JobFile::create([
+                'job_id' => $selectedJobId,
+                'user_id' => auth()->user()->id,
+                'file_name' => $fileName,
+                'file_path' => $filePath,
+                'file_status' => 1,
+            ]);
+        }
 
-        JobFile::create([
-            'job_id' => $selectedJobId,
-            'user_id' => auth()->user()->id,
-            'file_name' => $fileName,
-            'file_path' => $filePath,
-            'file_status' => 2,
-        ]);
-
-        // Update the job_status in the jobs table
-        Job::where('id', $selectedJobId)
-            ->update(['job_status' => 3]);
-
-        return redirect()->back()->with('success', 'File uploaded successfully.');
+        return redirect()->back()->with('success', 'Files uploaded successfully.');
     }
 
     public function downloadFile($id)

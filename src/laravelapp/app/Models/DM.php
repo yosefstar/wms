@@ -22,4 +22,14 @@ class DM extends Model
     {
         return $this->hasMany(Comment::class);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function unreadMessages()
+    {
+        return $this->hasMany(UnreadDm::class, 'dm_id');
+    }
 }

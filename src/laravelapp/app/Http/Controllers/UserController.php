@@ -7,10 +7,13 @@ use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $selectedUserType = $request->input('userType'); // 選択されたユーザータイプを取得
         $users = User::all();
-        return view('users.index', compact('users'));
+        $adminUsers = User::where('user_type', 1)->get();
+        $writerUsers = User::where('user_type', 2)->get();
+        return view('users.index', compact('users', 'selectedUserType', 'adminUsers', 'writerUsers'));
     }
 
     // 新規ユーザー作成画面

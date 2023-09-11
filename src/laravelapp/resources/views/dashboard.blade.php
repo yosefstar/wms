@@ -22,28 +22,74 @@
 </div>
 
 @if(Auth::user()->user_type == 1)
-<div class="row">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">未完了の案件数</h5>
-                <p class="card-text"></p>
-                <a href="{{ route('jobs.index') }}" class="card-link">{{ $ongoingJobCount }}件</a>
-            </div>
+<div class="col-lg-3 col-6">
+    <!-- small box -->
+    <div class="small-box bg-info">
+        <div class="inner">
+            <h3>{{ $ongoingJobCount }}件</h3>
+
+            <p>未完了の案件数</p>
         </div>
+        <div class="icon">
+            <i class="ion">
+                <ion-icon name="clipboard-outline"></ion-icon>
+            </i>
+            <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+            <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+        </div>
+        <a href="{{ route('jobs.index') }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+    </div>
+
+    <div class="small-box bg-success">
+        <div class="inner">
+            <h3>未読{{ $unreadDmCount }}件</h3>
+
+            <p>DM</p>
+        </div>
+        <div class="icon">
+            <i class="ion">
+                <ion-icon name="mail-unread-outline"></ion-icon>
+            </i>
+            <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+            <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+        </div>
+        <a href="{{ route('unreadDm') }}" class="small-box-footer">More info<i class="fas fa-arrow-circle-right"></i></a>
     </div>
 </div>
 @else
-<div class="row">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">管理者からのお知らせ</h5>
-                <p class="card-text"></p>
-                <a href="{{ route('announcements.index') }}" class="card-link">{{ $announcements->count() }}件</a>
-            </div>
+
+<div class="col-lg-3 col-6">
+    <!-- small box -->
+    <div class="small-box bg-info">
+        <div class="inner">
+            <h3>未読{{ $unreadAnnouncementCount }}件</h3>
+
+            <p>管理者からのお知らせ</p>
         </div>
+        <div class="icon">
+            <i class="far fa-bell"></i>
+        </div>
+        <a href="{{ route('announcements.index') }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+        <span class="badge badge-warning navbar-badge">{{ $announcements->count() }}</span>
+    </div>
+
+    <div class="small-box bg-success">
+        <div class="inner">
+            <h3>未読{{ $unreadDmCount }}件</h3>
+
+            <p>DM</p>
+        </div>
+        <div class="icon">
+            <i class="ion">
+                <ion-icon name="mail-unread-outline"></ion-icon>
+            </i>
+            <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+            <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+        </div>
+        <a href="{{ route('unreadDm') }}" class="small-box-footer">More info<i class="fas fa-arrow-circle-right"></i></a>
     </div>
 </div>
+
+
 @endif
 @endsection
