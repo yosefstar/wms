@@ -1,7 +1,7 @@
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
     <a href="index3.html" class="brand-link">
-        <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+        <!-- <img src="dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8"> -->
         <span class="brand-text font-weight-light">WMS</span>
     </a>
 
@@ -34,24 +34,26 @@
                     $userType = Auth::user()->user_type;
                     @endphp
 
-                    @if ($userType === 2)
                     <a href="{{ route('jobs.index') }}" class="nav-link">
-                        <i class="nav-icon fas fa-copy"></i>
-                        <p>案件管理だ</p>
-                    </a>
-                    @elseif ($userType === 1)
-                    <a href="{{ route('adminIndex') }}" class="nav-link">
                         <i class="nav-icon fas fa-copy"></i>
                         <p>案件管理</p>
                     </a>
-                    @endif
                 </li>
+
                 <li class="nav-item">
+                    @if ($userType === 2)
                     <a href="{{ route('invoices.index') }}" class="nav-link">
                         <i class="nav-icon fas fa-edit"></i>
                         <p>請求管理</p>
                     </a>
+                    @elseif ($userType === 1)
+                    <a href="{{ route('adminIndex') }}" class="nav-link">
+                        <i class="nav-icon fas fa-edit"></i>
+                        <p>請求管理</p>
+                    </a>
+                    @endif
                 </li>
+
                 <li class="nav-item">
                     <a href="{{ route('announcements.index') }}" class="nav-link">
                         <i class="nav-icon far fa-envelope"></i>

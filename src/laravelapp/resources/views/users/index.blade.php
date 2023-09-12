@@ -49,6 +49,31 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @foreach ($users as $user)
+                    @if ($selectedUserType == '')
+                    <tr>
+                        <td>{{ $user->id }}</td>
+                        <td>{{ $user->user_name }}</td>
+                        <td>
+                            @if ($user->user_icon)
+                            <img src="{{ $user->user_icon }}" alt="アイコン" style="max-height: 50px; max-width: 50px;">
+                            @else
+                            No Image
+                            @endif
+                        </td>
+                        <td>{{ $user->user_nickname }}</td>
+                        <td>{{ $user->created_at }}</td>
+                        <td>
+                            <a href="{{ route('users.edit', $user->id) }}">詳細・編集・停止</a>
+                        </td>
+                        <td>
+                            <a href="{{ route('dm.usersIndex', $user->id) }}">dm</a>
+                        </td>
+                    </tr>
+                    @endif
+                    @endforeach
+
+
                     @foreach ($adminUsers as $adminUser)
                     @if ($selectedUserType == 1)
                     <tr>

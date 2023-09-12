@@ -33,6 +33,7 @@ services:
    volumes:
      - ./docker/db/data:/var/lib/mysql
      - ./docker/db/my.cnf:/etc/mysql/conf.d/my.cnf
+     
    ports:
-     - "3307:3306"
+     - "3306:3306"
      
