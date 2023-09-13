@@ -1,3 +1,5 @@
+まずは、docker/db/dataがあれば、消す。
+
 https://yutaro-blog.net/2021/05/08/gitlab-clone/#index_id4
 
 秘密鍵を生成して、git labからgit cloneする。
@@ -14,29 +16,36 @@ docker exec -it laravel_app bash
 cd laravelapp/
 
 
-php artisan migrate
-でエラーが出たら、手動で
-   environment:
-     MYSQL_ROOT_PASSWORD: root
-     MYSQL_DATABASE: wms_db
-     MYSQL_USER: laravel_user
-     MYSQL_PASSWORD: laravel_pass
-     TZ: 'Asia/Tokyo'
+dockerで、rootなどでmysqlに入り、同じ名前のdbを作成する。
+mysqlで、仮のテーブルを作成したりすると、権限でのエラーがなくなる。
 
-MYSQL_DATABASE: wms_dbのdbを作成します。
-作成までに、権限付与などが必要の場合もあります。
+
+php artisan migrate
+
+https://zenn.dev/hashi8084/articles/84cf664e587d44
+
+エラーが出たら、configのキャッシュを消す。
+sqlのエラーは、docker/db/dataか、
+configのキャッシュのせいが大。
 
 マイグレショーン完了後、
 seederを実行
 
-npm install
-できない場合は↓
+この時点で自分は入れた。
 
-apt update
-apt install -y nodejs npm
 
-node -v
-npm -v
+あとは、
+表示の設定
 
-npm installができたら
-npm run build
+php artisan storage:link
+の後に、
+/Desktop/wmstest/wmsTest/src/laravelapp/storage/app/public/
+の配下に、ディレクトリを3つ作成。
+
+files
+invoices
+user_icons
+
+ここに保存データが保存される。
+
+完了

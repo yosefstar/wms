@@ -18,7 +18,6 @@ class InvoicesController extends Controller
     public function index(Request $request)
     {
         $user_id = $request->input('user_id');
-
         if ($user_id) {
             // 'user_id' パラメータが渡された場合、そのユーザー情報を取得
             $user = User::find($user_id);
@@ -135,6 +134,20 @@ class InvoicesController extends Controller
             }
         }
 
+        $billingMonth = $request->input('month');
+        // $userId をリクエストから取得する
+        $userId = $request->input('user_id');
+
+        // 条件に一致する請求書を取得
+        $invoice = Invoice::where('billing_month', $billingMonth)
+            ->where('user_id', $userId)
+            ->first();
+
+        $file_path = null; // デフォルト値を設定
+
+        if ($invoice) {
+            $file_path = $invoice->file_path;
+        }
 
         return view('invoices.index', [
             'user' => $user,
@@ -146,6 +159,7 @@ class InvoicesController extends Controller
             'prevMonth' => $date->copy()->subMonth()->format('Y-m'),
             'nextMonth' => $date->copy()->addMonth()->format('Y-m'),
             'invoices' => $invoices,
+            'file_path' => $file_path, // invoices の file_path を渡す
         ]);
     }
 

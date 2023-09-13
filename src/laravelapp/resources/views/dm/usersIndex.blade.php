@@ -32,7 +32,8 @@
                 <!-- Conversations are loaded here -->
                 <div class="direct-chat-messages">
                     @foreach ($dms as $dm)
-                    @if ($dm->receiver_id == $userId)
+                    @if ($dm->receiver_id == $receiver_id)
+                    @if ($dm->job_id == 0)
                     <div class="direct-chat-msg @if ($dm->user_id === auth()->user()->id) right @endif">
                         <div class="direct-chat-infos clearfix">
                             <span class="direct-chat-name float-left">{{ $dm->created_at->format('d M H:i A') }}</span>
@@ -44,6 +45,7 @@
                         </div>
                     </div>
                     @endif
+                    @endif
                     @endforeach
                 </div>
 
@@ -51,7 +53,7 @@
             <!-- /.card-body -->
             <div class="card-footer">
 
-                <form method="POST" action="{{ route('dm.usersStore', ['userId' => $userId]) }}">
+                <form method="POST" action="{{ route('dm.usersStore', ['receiver_id' => $receiver_id]) }}">
                     @csrf
                     <div class="form-group">
                         <textarea name="content" id="content" class="form-control" required></textarea>

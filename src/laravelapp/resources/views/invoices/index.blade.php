@@ -194,6 +194,14 @@
                             </form>
                             @endif
                             @endif
+
+
+
+                            @if(Auth::user()->user_type == 1)
+                            <a href="{{ asset('storage/' . $file_path) }}" class="btn btn-primary" target="_blank">請求書を表示</a>
+                            @endif
+
+
                         </div>
                     </div>
                 </div>

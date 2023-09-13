@@ -25,6 +25,10 @@
         <!-- DIRECT CHAT -->
         <div class="card direct-chat direct-chat-primary">
             <!-- /.card-header -->
+            <div class="card-header">
+                <h3 class="card-title">({{ $job->job_name }}) <p>案件の担当者: {{ $jobContractor->user_name }}</p>
+                </h3>
+            </div>
             <div class="card-body">
                 <!-- Conversations are loaded here -->
                 <div class="direct-chat-messages">

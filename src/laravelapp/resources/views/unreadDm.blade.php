@@ -22,6 +22,7 @@
     <div class="container-fluid">
         <div class="row">
             @foreach ($dmMessages as $dmMessage)
+
             <div class="col-md-12"> <!-- col-md-12で囲む -->
                 <div class="card card-outline card-info">
                     <div class="card card-outline card-info">
@@ -46,15 +47,16 @@
                             @php
                             $user = auth()->user();
                             @endphp
-                            <a href="{{ route('dm.usersIndex', $user->id) }}">dmを確認</a>
+                            <a href="{{ route('dm.usersIndex', ['jobId' => $dmMessage->job_id, 'receiver_id' => $dmMessage->receiver_id]) }}">dmを確認</a>
                             @else
                             <a href="{{ route('dm.index', ['jobId' => $job->id]) }}">案件dmを確認</a>
                             @endif
 
-                            <!-- 未読のメッセージがあるかを確認し、あれば新着メッセージを表示 -->
                             @php
-                            $hasNewMessages = $dmMessage->unreadMessages->contains('user_id', auth()->user()->id);
+                            // $dmMessage->hasNewMessages を取得
+                            $hasNewMessages = $dmMessage->hasNewMessages;
                             @endphp
+                            <!-- 未読のメッセージがあるかを確認し、あれば新着メッセージを表示 -->
                             @if ($hasNewMessages)
                             <p>新着メッセージあり</p>
                             @endif
@@ -90,18 +92,16 @@
                             @endif
                             <p>メッセージ：{{ $dmMessage->content }}</p>
                             @if ($dmMessage->job_id === 0)
-                            @php
-                            $user = auth()->user();
-                            @endphp
-                            <a href="{{ route('dm.usersIndex', $user->id) }}">dmを確認</a>
+                            <a href="{{ route('dm.usersIndex', ['receiver_id' => $dmMessage->receiver_id]) }}">dmを確認</a>
                             @else
                             <a href="{{ route('dm.index', ['jobId' => $job->id]) }}">案件dmを確認</a>
                             @endif
 
-                            <!-- 未読のメッセージがあるかを確認し、あれば新着メッセージを表示 -->
                             @php
-                            $hasNewMessages = $dmMessage->unreadMessages->contains('user_id', auth()->user()->id);
+                            // $dmMessage->hasNewMessages を取得
+                            $hasNewMessages = $dmMessage->hasNewMessages;
                             @endphp
+                            <!-- 未読のメッセージがあるかを確認し、あれば新着メッセージを表示 -->
                             @if ($hasNewMessages)
                             <p>新着メッセージあり</p>
                             @endif

@@ -340,7 +340,7 @@
                 </tr>
                 <tr>
                     <th>消費税 (10%)</th>
-                    <td>{{ $totalAmount * 0.1 }} 円</td>
+                    <td>{{ ceil($totalAmount * 0.1) }} 円</td>
                 </tr>
                 <tr>
                     <th>Total:</th>

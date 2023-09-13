@@ -101,9 +101,9 @@ Route::get('/inovoices/admin-index', [InvoicesController::class, 'adminIndex'])-
 Route::get('/dm/{jobId}', [DMController::class, 'index'])->name('dm.index');
 Route::post('/dm/store', [DMController::class, 'store'])->name('dm.store');
 
-Route::get('/dm/usersIndex/{jobClientId}', [DMController::class, 'usersIndex'])->name('dm.usersIndex');
+Route::get('/dm/usersIndex/{receiver_id}', [DMController::class, 'usersIndex'])->name('dm.usersIndex');
 
-Route::post('/dm/users/store/{userId}', [DMController::class, 'usersStore'])->name('dm.usersStore');
+Route::post('/dm/users/store/{receiver_id}', [DMController::class, 'usersStore'])->name('dm.usersStore');
 
 Route::get('/dm/create', [DMController::class, 'create'])->name('dm.create');
 

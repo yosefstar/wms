@@ -9,6 +9,7 @@ use App\Models\Job;
 use App\Models\User;
 use App\Models\Comment;
 use App\Models\UnreadDm;
+use Illuminate\Support\Facades\DB;
 
 class DMController extends Controller
 {
@@ -19,15 +20,18 @@ class DMController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $comments = [];
-        if ($dms->isNotEmpty()) {
-            $dmId = $dms[0]->id; // 最新のDMメッセージのIDを取得
-            $comments = Comment::where('dm_id', $dmId)->get();
+        $dmIdsToDelete = DM::where('job_id', $jobId)
+            ->pluck('id')
+            ->toArray();
 
-            // 特定の未読DMエントリを削除
-            $user = auth()->user(); // 現在のユーザーを取得
-            UnreadDm::where('dm_id', $dmId)
-                ->where('user_id', $user->id)
+        // dm_idが取得できた場合のみ削除処理を行う
+        if (!empty($dmIdsToDelete)) {
+            // 現在のユーザーを取得
+            $user = auth()->user();
+
+            // 削除条件を指定して未読DMエントリを削除
+            UnreadDm::where('user_id', $user->id)
+                ->whereIn('dm_id', $dmIdsToDelete)
                 ->delete();
         }
 
@@ -40,53 +44,56 @@ class DMController extends Controller
         // $jobId に対応する案件情報を取得
         $job = Job::find($jobId);
 
+        $jobContractorId = Job::where('id', $jobId)->value('job_contractor_id');
+        $jobContractor = User::find($jobContractorId);
         return view('dm.index', [
             'job' => $job,
             'jobId' => $jobId,
             'dms' => $dms,
-            'comments' => $comments,
             'dmId' => $dmId, // $dmId を設定
+            'jobContractor' => $jobContractor,
         ]);
     }
 
-    public function usersIndex($userId, $jobClientId = null)
+    public function usersIndex($receiver_id)
     {
         // $userId に対応する receiver_id を持つ DM メッセージを取得
-        $dms = DM::where('receiver_id', $userId)
+        $dms = DM::where('receiver_id', $receiver_id)
             ->orderBy('created_at', 'desc')
             ->get();
+
 
         // 最新のDMメッセージのIDを取得
         $dmId = $dms->isNotEmpty() ? $dms[0]->id : null;
 
-        $comments = [];
-        if ($dms->isNotEmpty()) {
-            $dmId = $dms[0]->id; // 最新のDMメッセージのIDを取得
-            $comments = Comment::where('dm_id', $dmId)->get();
 
-            // 特定の未読DMエントリを削除
-            $user = auth()->user(); // 現在のユーザーを取得
-            UnreadDm::where('dm_id', $dmId)
-                ->where('user_id', $user->id)
+        $dmIdsToDelete = DM::where('job_id', 0)
+            ->where('receiver_id', $receiver_id)
+            ->pluck('id')
+            ->toArray();
+
+        // dm_idが取得できた場合のみ削除処理を行う
+        if (!empty($dmIdsToDelete)) {
+            // 現在のユーザーを取得
+            $user = auth()->user();
+
+            // 削除条件を指定して未読DMエントリを削除
+            UnreadDm::where('user_id', $user->id)
+                ->whereIn('dm_id', $dmIdsToDelete)
                 ->delete();
         }
 
+        // リレーションを利用してユーザー情報を取得
+        $user = User::where('id', $receiver_id)->first();
+
         return view('dm.usersIndex', [
             'dms' => $dms,
-            'comments' => $comments,
-            'userId' => $userId,
-            'jobClientId' => $jobClientId, // jobClientId をビューに渡す
+            'receiver_id' => $receiver_id,
+            'user' => $user,
         ]);
     }
 
 
-
-
-
-    public function create()
-    {
-        return view('dm.create');
-    }
 
     public function store(Request $request)
     {
@@ -100,11 +107,11 @@ class DMController extends Controller
         $dm->user_id = Auth::id();
         $dm->job_id = $validatedData['job_id'];
 
-        // Job テーブルから job_client_id を取得
-        $jobClientId = Job::where('id', $dm->job_id)->value('job_client_id');
+        // Job テーブルから job_contractor_id を取得
+        $job_contractor_id = Job::where('id', $dm->job_id)->value('job_contractor_id');
 
-        // job_client_id の値を receiver_id に設定
-        $dm->receiver_id = $jobClientId ?? 0; // ジョブが見つからない場合のデフォルト値
+        // job_contractor_id の値を receiver_id に設定
+        $dm->receiver_id = $job_contractor_id ?? 0; // ジョブが見つからない場合のデフォルト値
         // ユーザーのuser_typeに応じてdm_statusを設定
         $userId = Auth::id();
         $user = User::find($userId);
@@ -172,8 +179,8 @@ class DMController extends Controller
             }
         }
 
-        $jobClientId = $userId;
-        return redirect()->route('dm.usersIndex', ['userId' => $userId, 'jobClientId' => $jobClientId])
+        $receiverId = $userId;
+        return redirect()->route('dm.usersIndex',  ['receiver_id' => $receiverId])
             ->with('success', 'DMが送信されました。');
     }
 
@@ -183,10 +190,25 @@ class DMController extends Controller
         // 認証済みのユーザーのIDを取得
         $userId = auth()->user()->id;
 
-        // 未読のDMメッセージを取得
-        $dmMessages = DM::select('id', 'receiver_id', 'job_id', 'content')
-            ->where('receiver_id', $userId)
+        $dmMessages = DB::table('dm')
+            ->select('receiver_id', 'job_id', 'content', 'id as dm_id')
+            ->whereIn('created_at', function ($query) use ($userId) {
+                $query->select(DB::raw('MAX(created_at)'))
+                    ->from('dm')
+                    ->where('receiver_id', $userId)
+                    ->groupBy('receiver_id', 'job_id');
+            })
             ->get();
+
+
+        foreach ($dmMessages as $dmMessage) {
+            $dmMessage->hasNewMessages = DB::table('unread_dm')
+                ->where('user_id', auth()->user()->id)
+                ->where('dm_id', $dmMessage->dm_id)
+                ->exists();
+        }
+
+        $uniqueReceiverIds = [];
 
         // 認証済みのユーザーのIDを取得
         $userId = auth()->user()->id;
@@ -199,8 +221,23 @@ class DMController extends Controller
         // jobデータを取得
         $jobs = Job::whereIn('id', $dmMessages->pluck('job_id')->toArray())->get();
 
-        $dmAdminMessages = DM::where('dm_status', 1)->get();
+        $dmAdminMessages = DB::table('dm')
+            ->select('receiver_id', 'job_id', 'content', 'id as dm_id')
+            ->whereIn('created_at', function ($query) use ($userId) {
+                $query->select(DB::raw('MAX(created_at)'))
+                    ->from('dm')
+                    ->groupBy('receiver_id', 'job_id');
+            })
+            ->get();
 
+        foreach ($dmAdminMessages as $dmMessage) {
+            $dmMessage->hasNewMessages = DB::table('unread_dm')
+                ->where('user_id', auth()->user()->id)
+                ->where('dm_id', $dmMessage->dm_id)
+                ->exists();
+        }
+
+        // ユーザーごとにメッセージをグループ化
         // ユーザー名を取得
         $userNames2 = User::whereIn('id', $dmAdminMessages->pluck('receiver_id')->toArray())
             ->pluck('user_name', 'id');
@@ -209,6 +246,7 @@ class DMController extends Controller
         $jobs2 = Job::whereIn('id', $dmAdminMessages->pluck('job_id')->toArray())->get();
 
         $users = User::all();
-        return view('unreadDm', compact('dmMessages', 'dmAdminMessages', 'userNames', 'userNames2', 'jobs', 'jobs2', 'users',));
+        $receiver_id = 3;
+        return view('unreadDm', compact('uniqueReceiverIds', 'dmMessages', 'dmAdminMessages', 'userNames', 'userNames2', 'jobs', 'jobs2', 'users',));
     }
 }
