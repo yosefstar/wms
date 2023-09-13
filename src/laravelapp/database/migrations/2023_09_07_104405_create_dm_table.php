@@ -18,7 +18,7 @@ class CreateDmTable extends Migration
             $table->unsignedBigInteger('user_id')->comment('ユーザーID');
             $table->unsignedBigInteger('job_id')->comment('案件ID');
             $table->text('content')->nullable(false)->comment('内容');
-            $table->integer('dm_status')->default(1)->nullable(false)->comment('ユーザー間でのやり取りか、案件間でのやり取りかを判別。');
+            $table->integer('dm_status')->default(1)->nullable(false);
             $table->unsignedBigInteger('receiver_id')->comment('受信者のユーザーID'); // 新しいカラムを追加
             $table->timestamps(); // updated_at & created_at
 

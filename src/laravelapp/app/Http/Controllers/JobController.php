@@ -206,7 +206,7 @@ class JobController extends Controller
 
         if (!empty($selectedWriter)) {
             // 選択されたライター名に基づいて絞り込みを追加
-            $jobsQuery->where('job_client_id', $selectedWriter);
+            $jobsQuery->where('job_contractor_id', $selectedWriter);
         }
 
         if (!empty($selectedStatus)) {
@@ -217,7 +217,8 @@ class JobController extends Controller
         $jobs = $jobsQuery->get();
         $writerOptions = $this->getWriterOptions();
         $selectedWriter = $request->input('writer');
-        return view('jobs.index', compact('jobs', 'writerOptions', 'selectedWriter', 'selectedStatus'));
+        $user = Auth::user();
+        return view('jobs.index', compact('user', 'jobs', 'writerOptions', 'selectedWriter', 'selectedStatus'));
     }
 
     private function getWriterOptions()
