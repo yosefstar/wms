@@ -66,14 +66,14 @@
                     <!-- Table row -->
                     <div class="row">
                         <div class="col-12 mb-3 d-flex justify-content-between">
-                            <!-- 先月へのリンク -->
-                            <a href="{{ route('invoices.index', ['month' => $prevMonth]) }}" class="btn btn-secondary">先月</a>
-
+                            @if(Auth::user()->user_type == 2)
+                            <a href="{{ route('invoices.index', ['billing_month' => $prevMonth]) }}" class="btn btn-secondary">先月</a>
+                            @endif
                             <!-- 現在の月 -->
                             <span>請求月: {{ $currentMonth }}</span>
-
-                            <!-- 来月へのリンク -->
-                            <a href="{{ route('invoices.index', ['month' => $nextMonth]) }}" class="btn btn-secondary">来月</a>
+                            @if(Auth::user()->user_type == 2)
+                            <a href="{{ route('invoices.index', ['billing_month' => $nextMonth]) }}" class="btn btn-secondary">来月</a>
+                            @endif
                         </div>
                         <div class="col-12 table-responsive">
                             <table class="table table-striped">
@@ -84,7 +84,7 @@
                                         <th>数量</th>
                                         <th>単価</th>
                                         <th>合計金額</th>
-                                        <th>詳細・編集・削除</th>
+                                        <th>編集</th>
                                     </tr>
                                 </thead>
                                 @php
@@ -157,9 +157,13 @@
                     <div class="row no-print">
                         <div class="col-12 d-flex justify-content-end align-items-center">
                             @if(Auth::check() && Auth::user()->user_type != 1)
-                            <a href="{{ route('invoices.pdf') }}" class="btn btn-primary" style="margin-right: 5px;">
-                                <i class="fas fa-download"></i> PDFを作成
-                            </a>
+                            <form action="{{ route('invoices.pdf') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="billing_month" value="{{ $currentMonth }}">
+                                <button type="submit" class="btn btn-primary" style="margin-right: 5px;">
+                                    <i class="fas fa-download"></i> PDFを作成
+                                </button>
+                            </form>
                             @endif
 
                             @php
@@ -196,9 +200,10 @@
                             @endif
 
 
-
                             @if(Auth::user()->user_type == 1)
                             <a href="{{ asset('storage/' . $file_path) }}" class="btn btn-primary" target="_blank">請求書を表示</a>
+                            <p>{{dd($file_path)}}</p>
+
                             @endif
 
 

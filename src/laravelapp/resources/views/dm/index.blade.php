@@ -63,6 +63,14 @@
             <!-- /.card-footer-->
         </div>
         <!--/.direct-chat -->
+        <button onclick="goBack()" class="btn btn-primary">戻る</button>
+
+
+        <script>
+            function goBack() {
+                window.history.back();
+            }
+        </script>
     </div>
     <!-- ./wrapper -->
 

@@ -59,7 +59,7 @@ class JobFileController extends Controller
                 'user_id' => auth()->user()->id,
                 'file_name' => $fileName,
                 'file_path' => $filePath,
-                'file_status' => 1,
+                'file_status' => 2,
             ]);
         }
 

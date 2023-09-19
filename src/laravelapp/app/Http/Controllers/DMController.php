@@ -190,7 +190,7 @@ class DMController extends Controller
         // 認証済みのユーザーのIDを取得
         $userId = auth()->user()->id;
 
-        $dmMessages = DB::table('dm')
+        $dmMessages = DM::select('receiver_id', 'job_id', 'content', 'id as dm_id')
             ->select('receiver_id', 'job_id', 'content', 'id as dm_id')
             ->whereIn('created_at', function ($query) use ($userId) {
                 $query->select(DB::raw('MAX(created_at)'))
@@ -198,8 +198,8 @@ class DMController extends Controller
                     ->where('receiver_id', $userId)
                     ->groupBy('receiver_id', 'job_id');
             })
-            ->get();
-
+            ->orderBy('created_at', 'desc') // 新しい順に並べる
+            ->paginate(20); // ページネーションを20件に制限
 
         foreach ($dmMessages as $dmMessage) {
             $dmMessage->hasNewMessages = DB::table('unread_dm')
@@ -221,14 +221,14 @@ class DMController extends Controller
         // jobデータを取得
         $jobs = Job::whereIn('id', $dmMessages->pluck('job_id')->toArray())->get();
 
-        $dmAdminMessages = DB::table('dm')
-            ->select('receiver_id', 'job_id', 'content', 'id as dm_id')
+        $dmAdminMessages = DM::select('receiver_id', 'job_id', 'content', 'id as dm_id')
             ->whereIn('created_at', function ($query) use ($userId) {
                 $query->select(DB::raw('MAX(created_at)'))
                     ->from('dm')
                     ->groupBy('receiver_id', 'job_id');
             })
-            ->get();
+            ->orderBy('created_at', 'desc') // 新しい順に並べる
+            ->paginate(20); // ページネーションを20件に制限
 
         foreach ($dmAdminMessages as $dmMessage) {
             $dmMessage->hasNewMessages = DB::table('unread_dm')

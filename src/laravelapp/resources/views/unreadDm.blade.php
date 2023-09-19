@@ -114,6 +114,14 @@
             @endif
             @endforeach
         </div>
+        <button onclick="goBack()" class="btn btn-primary">戻る</button>
+
+
+        <script>
+            function goBack() {
+                window.history.back();
+            }
+        </script>
     </div>
 </section>
 

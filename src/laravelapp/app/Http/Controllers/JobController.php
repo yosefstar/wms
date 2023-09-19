@@ -14,9 +14,12 @@ class JobController extends Controller
     public function index(Request $request)
     {
         if (Auth::user()->user_type === 2) {
-            $jobs = Job::where('job_contractor_id', Auth::id())->get();
+            $jobs = Job::where('job_contractor_id', Auth::id())
+                ->orderBy('id', 'desc') // $job->idが大きい順に並び替え
+                ->paginate(50); // ページネーションの設定
         } else {
-            $jobs = Job::all();
+            $jobs = Job::orderBy('id', 'desc') // $job->idが大きい順に並び替え
+                ->paginate(50); // ページネーションの設定
         }
 
         $user = Auth::user();
@@ -35,7 +38,7 @@ class JobController extends Controller
 
     public function create()
     {
-        $users = User::all();
+        $users = User::where('user_type', 2)->get();
         return view('jobs.create', compact('users'));
     }
 
@@ -224,5 +227,19 @@ class JobController extends Controller
     private function getWriterOptions()
     {
         return User::where('user_type', 2)->pluck('user_name', 'id');
+    }
+
+    public function destroy($id)
+    {
+        $job = Job::find($id);
+
+        if (!$job) {
+            // 案件が見つからない場合の処理を追加
+            return redirect()->route('jobs.index')->with('error', '案件が見つかりませんでした。');
+        }
+
+        $job->delete();
+
+        return redirect()->route('jobs.index')->with('success', '案件が削除されました。');
     }
 }

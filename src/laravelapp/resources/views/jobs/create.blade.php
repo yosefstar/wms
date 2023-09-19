@@ -88,6 +88,14 @@
                 <!-- /.card-body -->
             </div>
             <!-- /.card -->
+            <button onclick="goBack()" class="btn btn-primary">戻る</button>
+
+
+            <script>
+                function goBack() {
+                    window.history.back();
+                }
+            </script>
         </div>
 </section>
 

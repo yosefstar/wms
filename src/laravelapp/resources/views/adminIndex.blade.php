@@ -34,7 +34,7 @@
                     <!-- /.card-header -->
                     <div class="card-body">
                         請求月: {{ $invoice->billing_month }}
-                        <a href="{{ route('invoices.index', ['month' => $invoice->billing_month, 'user_id' => $invoice->user_id]) }}" class="btn btn-secondary">詳細</a>
+                        <a href="{{ route('invoices.index', ['month' => $currentMonth ?? $invoice->billing_month, 'user_id' => $invoice->user_id]) }}" class="btn btn-secondary">詳細</a>
                     </div>
 
                 </div>

@@ -48,6 +48,23 @@
                 <label for="jobName">案件名</label>
                 <input type="text" class="form-control" id="job_name" name="job_name" placeholder="案件名を入力">
             </div>
+
+            <script>
+                // ページが読み込まれたときにローカルストレージからテキストを取得してフィールドにセットする
+                window.onload = function() {
+                    var jobNameInput = document.getElementById('job_name');
+                    var savedJobName = localStorage.getItem('job_name');
+
+                    if (savedJobName) {
+                        jobNameInput.value = savedJobName;
+                    }
+
+                    // テキストが変更されたらローカルストレージに保存する
+                    jobNameInput.addEventListener('input', function() {
+                        localStorage.setItem('job_name', jobNameInput.value);
+                    });
+                }
+            </script>
             <button type="submit" class="btn btn-primary">検索</button>
         </form>
 
@@ -67,9 +84,9 @@
                         <th>ライター名</th>
                         <th>案件ステータス</th>
                         @if ($user->user_type == 1)
-                        <th>詳細・編集・停止</th>
+                        <th>編集</th>
                         @elseif ($user->user_type == 2)
-                        <th>詳細・編集</th>
+                        <th>詳細</th>
                         @endif
                         <th>dm</th>
                     </tr>
@@ -95,9 +112,9 @@
                         </td>
                         <td>
                             @if ($user->user_type == 1)
-                            <a href="{{ route('jobs.edit', ['id' => $job->id]) }}">詳細・編集・停止</a>
+                            <a href="{{ route('jobs.edit', ['id' => $job->id]) }}">編集</a>
                             @elseif ($user->user_type == 2)
-                            <a href="{{ route('jobs.edit', ['id' => $job->id]) }}">詳細・編集</a>
+                            <a href="{{ route('jobs.edit', ['id' => $job->id]) }}">詳細</a>
                             @endif
                         </td>
                         <td>
@@ -110,8 +127,16 @@
             </table>
         </div>
         <!-- /.card-body -->
+
     </div>
-    <!-- /.card -->
+    <button onclick="goBack()" class="btn btn-primary">戻る</button>
+
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script><!-- /.card -->
 
 </section>
 <!-- </div> -->

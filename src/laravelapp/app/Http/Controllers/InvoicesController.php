@@ -29,6 +29,12 @@ class InvoicesController extends Controller
             $user = Auth::user();
         }
 
+
+        $date = Carbon::now();
+
+        // リクエストから`month`の値を取得し、存在しない場合は現在の月を設定する
+        $currentMonth = $request->input('month', $date->format('Y年m月'));
+
         // クエリパラメーターから月と他のフィルタを取得
         $selectedMonth = $request->input('month', now()->format('Y-m'));
         $selectedStatus = $request->input('status', '');
@@ -134,14 +140,19 @@ class InvoicesController extends Controller
             }
         }
 
-        $billingMonth = $request->input('month');
-        // $userId をリクエストから取得する
-        $userId = $request->input('user_id');
+        $user_id = $request->input('user_id');
+        $userId = $user_id ? $user_id : Auth::user()->id; // 'user_id' パラメータがあればそれを使い、なければ認証ユーザーのIDを使用
+
+        $date = Carbon::now();
+        $currentMonth = $request->input('month', $date->format('Y年m月'));
+
 
         // 条件に一致する請求書を取得
-        $invoice = Invoice::where('billing_month', $billingMonth)
+        $invoice = Invoice::where('billing_month', $currentMonth)
             ->where('user_id', $userId)
             ->first();
+
+
 
         $file_path = null; // デフォルト値を設定
 
@@ -155,7 +166,7 @@ class InvoicesController extends Controller
             'prefectureName' => $prefectureName,
             'selectedStatus' => $selectedStatus,
             'selectedWriter' => $selectedWriter,
-            'currentMonth' => $date->format('Y年m月'),
+            'currentMonth' => $currentMonth,
             'prevMonth' => $date->copy()->subMonth()->format('Y-m'),
             'nextMonth' => $date->copy()->addMonth()->format('Y-m'),
             'invoices' => $invoices,
@@ -172,8 +183,9 @@ class InvoicesController extends Controller
 
         $admininvoices = Invoice::where('submit_status', 1)
             ->join('users', 'invoices.user_id', '=', 'users.id')
-            ->select('users.user_name', 'invoices.billing_month', 'invoices.user_id') // 'invoices.user_id' を追加
-            ->get();
+            ->select('users.user_name', 'invoices.billing_month', 'invoices.user_id')
+            ->orderBy('invoices.created_at', 'desc') // 新着順に並べ替え
+            ->paginate(20); // ページネーションを適用
         $user = Auth::user();
 
         return view('adminIndex', compact('user', 'admininvoices', 'selectedMonth'));
@@ -182,9 +194,10 @@ class InvoicesController extends Controller
 
     public function createPdf(Request $request)  // 引数に $request を追加
     {
+        $billingMonth = $request->input('billing_month');
         $user = Auth::user();
 
-        $selectedMonth = $request->input('month', now()->format('Y-m'));
+        $selectedMonth = $request->input('billing_month', now()->format('Y-m'));
         $selectedStatus = $request->input('status', '');
         $selectedWriter = $request->input('writer', '');
 

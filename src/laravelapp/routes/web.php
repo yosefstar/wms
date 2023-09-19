@@ -66,6 +66,8 @@ Route::get('/jobs/{id}/update-end-date', [JobController::class, 'updateEndDate']
 Route::put('/jobs/{id}/update-job-end-date', [JobController::class, 'updateJobEndDate'])->name('jobs.updateJobEndDate');
 Route::post('/jobs/{jobId}/complete', [JobController::class, 'complete'])->name('jobs.complete');
 Route::get('/search', [JobController::class, 'search'])->name('search');
+Route::delete('/jobs/{id}', [JobController::class, 'destroy'])->name('jobs.destroy');
+
 
 Route::get('/files/{id}/download', [JobFileController::class, 'downloadFile'])->name('download.file');
 Route::get('/files/{id}/delete', [JobFileController::class, 'deleteFile'])->name('delete.file');
@@ -73,7 +75,6 @@ Route::post('/jobs/{job_id}/upload/file_1', [JobFileController::class, 'uploadFi
 Route::post('/jobs/{job_id}/upload/file_2', [JobFileController::class, 'uploadFile_2'])->name('upload.file_2');
 
 
-Route::get('/billing', [BillingController::class, 'index'])->name('billing.index');
 
 Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
 Route::get('/announcements/create', [AnnouncementController::class, 'create'])->name('announcements.create'); // 'create' メソッドを呼び出す

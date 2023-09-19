@@ -60,14 +60,23 @@
                     </div>
                     <input type="hidden" name="job_id" value="0"> <!-- デフォルト値を0に設定 -->
                     <button type="submit" class="btn btn-primary">送信</button>
-
+                </form>
 
             </div>
             <!-- /.card-footer-->
         </div>
         <!--/.direct-chat -->
+        <button onclick="goBack()" class="btn btn-primary">戻る</button>
+
+
+        <script>
+            function goBack() {
+                window.history.back();
+            }
+        </script>
     </div>
     <!-- ./wrapper -->
+
 
     <!-- jQuery -->
     <script src="plugins/jquery/jquery.min.js"></script>

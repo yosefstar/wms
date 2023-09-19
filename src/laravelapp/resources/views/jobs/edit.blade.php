@@ -221,7 +221,7 @@
                             @foreach ($job->jobFiles as $file)
                             @if ($file->file_status === 1)
                             <tr>
-                                <td><a href="{{ asset($file->file_path) }}" target="_blank">{{ $file->file_name }}</a></td>
+                                <td>{{ $file->file_name }}</td>
                                 <td>
                                     <a href="{{ route('download.file', ['id' => $file->id]) }}" class="btn btn-info"><i class="fas fa-eye"></i></a>
                                     @if ($job->job_status === 1)
@@ -261,7 +261,7 @@
                             @foreach ($job->jobFiles as $file)
                             @if ($file->file_status === 2)
                             <tr>
-                                <td><a href="{{ asset($file->file_path) }}" target="_blank">{{ $file->file_name }}</a></td>
+                                <td>{{ $file->file_name }}</td>
                                 <td>
                                     <a href="{{ route('download.file', ['id' => $file->id]) }}" class="btn btn-info"><i class="fas fa-eye"></i></a>
                                     @if ($job->job_status === 1 || $job->job_status === 2)
@@ -284,7 +284,7 @@
                 @csrf
                 <label for="fileInput" class="btn btn-success col fileinput-button">
                     <i class="fas fa-plus"></i>
-                    <span>ファイルを選択</span>
+                    <span>ファイルを追加</span>
                 </label>
                 <input id="fileInput" type="file" name="file" style="display: none;" multiple>
                 <div id="selectedFileNames"></div>
@@ -302,7 +302,7 @@
                 @csrf
                 <label for="fileInput" class="btn btn-success col fileinput-button">
                     <i class="fas fa-plus"></i>
-                    <span>ファイルを選択</span>
+                    <span>納品ファイルを選択</span>
                 </label>
                 <input id="fileInput" type="file" name="file[]" style="display: none;" multiple>
                 <div id="selectedFileNames"></div>
@@ -338,6 +338,26 @@
         });
     </script>
 
+    @if(Auth::user()->user_type == 1)
+    @if ($job->job_status !== 4)
+    <td>
+        <form action="{{ route('jobs.destroy', $job->id) }}" method="POST">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-danger">削除</button>
+        </form>
+    </td>
+    @endif
+    @endif
+
+    <button onclick="goBack()" class="btn btn-primary">戻る</button>
+
+
+    <script>
+        function goBack() {
+            window.history.back();
+        }
+    </script>
 
 
 </section>
