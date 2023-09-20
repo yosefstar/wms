@@ -207,5 +207,6 @@
             </section>
         </div>
     </form>
+    <a href="{{ route('users.index') }}" class="btn btn-primary">戻る</a>
 </div>
 @endsection

@@ -70,7 +70,7 @@
             <i class="far fa-bell"></i>
         </div>
         <a href="{{ route('announcements.index') }}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-        <span class="badge badge-warning navbar-badge">{{ $announcements->count() }}</span>
+        <!-- <span class="badge badge-warning navbar-badge">{{ $announcements->count() }}</span> -->
     </div>
 
     <div class="small-box bg-success">

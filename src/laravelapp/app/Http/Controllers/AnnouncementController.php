@@ -14,7 +14,13 @@ class AnnouncementController extends Controller
     public function index()
     {
         // お知らせデータをデータベースから取得
-        $announcements = Announcement::published()->get();
+        $now = now(); // 現在の日付と時刻を取得
+
+        $announcements = Announcement::published()
+            ->whereDate('start_date', '<=', $now)
+            ->whereDate('end_date', '>=', $now)
+            ->orderBy('id', 'desc')
+            ->paginate(20);
         $expiredAnnouncements = Announcement::expired()->get();
         $user = Auth::user();
         // ビューにデータを渡してお知らせ一覧を表示

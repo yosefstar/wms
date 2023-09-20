@@ -17,11 +17,13 @@
                 </ol>
             </div>
         </div>
+        @if ($user->user_type == 1)
         <div class="row mb-2">
             <div class="col-sm-12">
                 <a href="{{ route('jobs.create') }}" class="btn btn-primary float-right">新しい案件を作成</a>
             </div>
         </div>
+        @endif
         <form action="{{ route('search') }}" method="GET">
             <div class="form-group">
                 <label for="status">ステータス</label>
@@ -92,6 +94,7 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @if ($user->user_type == 1)
                     @foreach ($jobs as $job)
                     <tr>
                         <td>{{ $job->id }}</td>
@@ -111,18 +114,44 @@
                             @endif
                         </td>
                         <td>
-                            @if ($user->user_type == 1)
                             <a href="{{ route('jobs.edit', ['id' => $job->id]) }}">編集</a>
-                            @elseif ($user->user_type == 2)
-                            <a href="{{ route('jobs.edit', ['id' => $job->id]) }}">詳細</a>
-                            @endif
                         </td>
                         <td>
                             <a href="{{ route('dm.index', ['jobId' => $job->id]) }}">dm</a>
                         </td>
                     </tr>
                     @endforeach
+                    @endif
 
+                    @if ($user->user_type == 2)
+                    @foreach ($userJobs as $job)
+                    <tr>
+                        <td>{{ $job->id }}</td>
+                        <td>{{ $job->job_name }}</td>
+                        <td>{{ $job->contractorNickname() }}</td>
+                        <td>
+                            @if ($job->job_status === 1)
+                            未対応
+                            @elseif ($job->job_status === 2)
+                            対応中
+                            @elseif ($job->job_status === 3)
+                            納品済
+                            @elseif ($job->job_status === 4)
+                            検収済
+                            @else
+                            未定義
+                            @endif
+                        </td>
+                        <td>
+                            <a href="{{ route('jobs.edit', ['id' => $job->id]) }}">詳細</a>
+
+                        </td>
+                        <td>
+                            <a href="{{ route('dm.index', ['jobId' => $job->id]) }}">dm</a>
+                        </td>
+                    </tr>
+                    @endforeach
+                    @endif
                 </tbody>
             </table>
         </div>

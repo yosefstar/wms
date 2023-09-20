@@ -35,33 +35,8 @@ class InvoicesController extends Controller
         // リクエストから`month`の値を取得し、存在しない場合は現在の月を設定する
         $currentMonth = $request->input('month', $date->format('Y年m月'));
 
-        // クエリパラメーターから月と他のフィルタを取得
-        $selectedMonth = $request->input('month', now()->format('Y-m'));
-        $selectedStatus = $request->input('status', '');
-        $selectedWriter = $request->input('writer', '');
 
-        // 有効な日付形式か確認
-        try {
-            $date = Carbon::createFromFormat('Y-m', $selectedMonth)->startOfMonth();
-        } catch (\Exception $e) {
-            $date = now()->startOfMonth();
-        }
 
-        // ジョブの取得
-        $query = Job::where('job_contractor_id', $user->id);  // ログインユーザーに関連するジョブを取得
-
-        // 月でフィルタリング
-        $query->whereBetween('job_check_date', [$date, $date->copy()->endOfMonth()]);
-
-        // ステータスとライターでフィルタリング
-        if (!empty($selectedStatus)) {
-            $query->where('job_status', $selectedStatus);
-        }
-        if (!empty($selectedWriter)) {
-            $query->where('writer_id', $selectedWriter);
-        }
-
-        $jobs = $query->get();
         $invoices = Invoice::all();
 
 
@@ -144,7 +119,6 @@ class InvoicesController extends Controller
         $userId = $user_id ? $user_id : Auth::user()->id; // 'user_id' パラメータがあればそれを使い、なければ認証ユーザーのIDを使用
 
         $date = Carbon::now();
-        $currentMonth = $request->input('month', $date->format('Y年m月'));
 
 
         // 条件に一致する請求書を取得
@@ -160,6 +134,73 @@ class InvoicesController extends Controller
             $file_path = $invoice->file_path;
         }
 
+        $billingMonth = null;
+
+        if (!$billingMonth) {
+            // Carbon インスタンスに変換
+            // クエリパラメーターから月と他のフィルタを取得
+            $billingMonth = $request->input('billing_month', $date->format('Y年m月'));
+            $billingMonthCarbon = Carbon::createFromFormat('Y年n月', $billingMonth);
+
+            // 前月を計算
+            $prevMonth = $billingMonthCarbon->copy()->subMonth()->format('Y年n月');
+            $nextMonth = $billingMonthCarbon->copy()->addMonth()->format('Y年n月');
+        }
+
+        // prevMonthパラメーターが指定されている場合、1ヶ月前の月を計算
+        if ($request->has('prevMonth')) {
+            // Carbon インスタンスに変換
+            $billingMonthCarbon = Carbon::createFromFormat('Y年n月', $billingMonth);
+            $nextMonth = \Carbon\Carbon::createFromFormat('Y年n月', $billingMonth)->format('Y年n月');
+            $billingMonth = \Carbon\Carbon::createFromFormat('Y年n月', $billingMonth)->subMonth()->format('Y年n月');
+            // 前月を計算
+            $prevMonth = \Carbon\Carbon::createFromFormat('Y年n月', $billingMonth)->subMonth()->format('Y年n月');
+        }
+
+        if ($request->has('nextMonth')) {
+            // Carbon インスタンスに変換
+            $billingMonthCarbon = Carbon::createFromFormat('Y年n月', $billingMonth);
+            $prevMonth = \Carbon\Carbon::createFromFormat('Y年n月', $billingMonth)->format('Y年n月');
+            $billingMonth = \Carbon\Carbon::createFromFormat('Y年n月', $billingMonth)->addMonth()->format('Y年n月');
+            // 前月を計算
+            $nextMonth = \Carbon\Carbon::createFromFormat('Y年n月', $billingMonth)->addMonth()->format('Y年n月');
+        }
+
+
+
+        $selectedStatus = $request->input('status', '');
+        $selectedWriter = $request->input('writer', '');
+
+        $date = Carbon::createFromFormat('Y年n月', $billingMonth)->startOfMonth();
+
+
+
+
+        $query = Job::where('job_contractor_id', $user->id);
+
+        $query->whereBetween('job_check_date', [$date, $date->copy()->endOfMonth()]);
+
+
+
+        // ステータスとライターでフィルタリング
+        if (!empty($selectedStatus)) {
+            $query->where('job_status', $selectedStatus);
+        }
+        if (!empty($selectedWriter)) {
+            $query->where('writer_id', $selectedWriter);
+        }
+
+        $jobs = $query->get();
+        // // 前月の月を計算
+        // $prevMonth = $billingMonth->copy()->subMonth();
+
+        // // 次月の月を計算
+        // $nextMonth = $billingMonth->copy()->addMonth();
+
+
+
+        // フォーマットして dd() で表示
+
         return view('invoices.index', [
             'user' => $user,
             'jobs' => $jobs,
@@ -167,10 +208,11 @@ class InvoicesController extends Controller
             'selectedStatus' => $selectedStatus,
             'selectedWriter' => $selectedWriter,
             'currentMonth' => $currentMonth,
-            'prevMonth' => $date->copy()->subMonth()->format('Y-m'),
-            'nextMonth' => $date->copy()->addMonth()->format('Y-m'),
+            'prevMonth' =>  $prevMonth,
+            'nextMonth' =>  $nextMonth,
             'invoices' => $invoices,
             'file_path' => $file_path, // invoices の file_path を渡す
+            'billingMonth' => $billingMonth,
         ]);
     }
 
@@ -188,7 +230,16 @@ class InvoicesController extends Controller
             ->paginate(20); // ページネーションを適用
         $user = Auth::user();
 
-        return view('adminIndex', compact('user', 'admininvoices', 'selectedMonth'));
+        // ログイン中のユーザーの user_id を取得
+        $userId = $user->id;
+
+        // ログイン中のユーザーと同じ user_id を持つ invoices レコードを取得
+        $usersinvoices = Invoice::where('user_id', $userId)
+            ->where('submit_status', 1)
+            ->orderBy('created_at', 'desc')
+            ->paginate(20);
+
+        return view('adminIndex', compact('user', 'admininvoices', 'selectedMonth', 'usersinvoices'));
     }
 
 
@@ -197,15 +248,12 @@ class InvoicesController extends Controller
         $billingMonth = $request->input('billing_month');
         $user = Auth::user();
 
-        $selectedMonth = $request->input('billing_month', now()->format('Y-m'));
         $selectedStatus = $request->input('status', '');
         $selectedWriter = $request->input('writer', '');
 
-        try {
-            $date = Carbon::createFromFormat('Y-m', $selectedMonth)->startOfMonth();
-        } catch (\Exception $e) {
-            $date = now()->startOfMonth();
-        }
+        // $date = Carbon::createFromFormat('Y-m-d H:i:s', $billingMonth)->startOfMonth();
+        $date = Carbon::createFromFormat('Y年m月', $billingMonth)->startOfMonth();
+
 
         $query = Job::where('job_contractor_id', $user->id);
 
@@ -230,7 +278,8 @@ class InvoicesController extends Controller
         $calculatedValue = ceil($totalAmount * 1.1 - $totalAmount * 0.1021);
         $pdf = PDF::loadView('invoices.pdf', [
             'jobs' => $jobs,
-            'calculatedValue' => $calculatedValue  // ここに追加
+            'calculatedValue' => $calculatedValue,
+            'billingMonth' => $billingMonth  // ここに追加
         ]);
 
         return $pdf->download('納品書.pdf');
@@ -244,17 +293,15 @@ class InvoicesController extends Controller
 
     public function createPdfAndSaveInvoice(Request $request)
     {
+        $billingMonth = $request->input('billing_month');
         $user = Auth::user();
 
-        $selectedMonth = $request->input('month', now()->format('Y-m'));
         $selectedStatus = $request->input('status', '');
         $selectedWriter = $request->input('writer', '');
 
-        try {
-            $date = Carbon::createFromFormat('Y-m', $selectedMonth)->startOfMonth();
-        } catch (\Exception $e) {
-            $date = now()->startOfMonth();
-        }
+        $date = Carbon::createFromFormat('Y年n月', $billingMonth)->startOfMonth();
+
+
 
         $query = Job::where('job_contractor_id', $user->id);
 

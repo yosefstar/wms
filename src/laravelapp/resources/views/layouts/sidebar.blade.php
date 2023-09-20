@@ -56,7 +56,7 @@
 
                 <li class="nav-item">
                     <a href="{{ route('announcements.index') }}" class="nav-link">
-                        <i class="nav-icon far fa-envelope"></i>
+                        <i class="nav-icon far fa-image"></i>
                         <p>お知らせ管理</p>
                     </a>
                 </li>
@@ -68,6 +68,13 @@
                     </a>
                 </li>
                 @endif
+
+                <li class="nav-item">
+                    <a href="{{ route('unreadDm') }}" class="nav-link">
+                        <i class="nav-icon fas fa-envelope"></i>
+                        <p>DM管理</p>
+                    </a>
+                </li>
             </ul>
         </nav>
         <!-- /.sidebar-menu -->

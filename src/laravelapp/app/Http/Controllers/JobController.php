@@ -22,12 +22,21 @@ class JobController extends Controller
                 ->paginate(50); // ページネーションの設定
         }
 
+        $userId = Auth::id();
+
+        $userJobs = Job::where(function ($query) use ($userId) {
+            $query->where('job_contractor_id', $userId);
+            // 他の条件を追加することができます
+        })
+            ->orderBy('id', 'desc') // $job->idが大きい順に並び替え
+            ->paginate(50); // ページネーションの設定
+
         $user = Auth::user();
 
         $selectedStatus = $request->input('status', '');
         $writerOptions = $this->getWriterOptions();
         $selectedWriter = $request->input('writer', '');
-        return view('jobs.index', compact('user', 'jobs', 'selectedStatus', 'writerOptions', 'selectedWriter',));
+        return view('jobs.index', compact('user', 'jobs', 'userJobs', 'selectedStatus', 'writerOptions', 'selectedWriter',));
     }
 
     protected function getContractorNickname($contractorId)
@@ -201,7 +210,7 @@ class JobController extends Controller
         $selectedWriter = $request->input('writer'); // 選択されたライター名
         $selectedStatus = $request->input('status', 'すべて');
         // データベースクエリを構築
-        $jobsQuery = Job::query();
+        $jobsQuery = Job::query()->orderBy('id', 'desc');
 
         if (!empty($jobName)) {
             $jobsQuery->where('job_name', 'like', '%' . $jobName . '%');
@@ -217,11 +226,30 @@ class JobController extends Controller
             $jobsQuery->where('job_status', $selectedStatus);
         }
 
-        $jobs = $jobsQuery->get();
+        $userId = Auth::id();
+
+        $userJobsQuery = Job::query()->orderBy('id', 'desc');
+
+        if (!empty($jobName)) {
+            $userJobsQuery->where('job_name', 'like', '%' . $jobName . '%');
+        }
+
+        if (!$selectedWriter) {
+            // 選択されたライター名に基づいて絞り込みを追加
+            $userJobsQuery->where('job_contractor_id',  $userId);
+        }
+
+        if (!empty($selectedStatus)) {
+            // 選択されたステータスに基づいて絞り込みを追加
+            $userJobsQuery->where('job_status', $selectedStatus);
+        }
+
+        $userJobs = $userJobsQuery->paginate(50);
+        $jobs = $jobsQuery->paginate(50);
         $writerOptions = $this->getWriterOptions();
         $selectedWriter = $request->input('writer');
         $user = Auth::user();
-        return view('jobs.index', compact('user', 'jobs', 'writerOptions', 'selectedWriter', 'selectedStatus'));
+        return view('jobs.index', compact('user', 'jobs', 'userJobs', 'writerOptions', 'selectedWriter', 'selectedStatus'));
     }
 
     private function getWriterOptions()

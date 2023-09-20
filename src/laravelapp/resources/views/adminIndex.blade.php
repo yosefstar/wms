@@ -45,4 +45,28 @@
 </section>
 @endif
 
+<!-- @if ($user->user_type == 2)
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            @foreach ($usersinvoices as $invoice)
+            <div class="col-md-12">
+                <div class="card card-outline card-info">
+                    <div class="card-header">
+                        ライター名: {{ $invoice->user_name }}
+                    </div>
+
+                    <div class="card-body">
+                        請求月: {{ $invoice->billing_month }}
+                        <a href="{{ route('invoices.index', ['month' => $currentMonth ?? $invoice->billing_month, 'user_id' => $invoice->user_id]) }}" class="btn btn-secondary">詳細</a>
+                    </div>
+
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif -->
+
 @endsection

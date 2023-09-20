@@ -166,7 +166,7 @@
                                 @endif
                             </h4>
                             <div class="form-group">
-                                <button type="submit" class="btn btn-primary">更新だ</button>
+                                <button type="submit" class="btn btn-primary">更新</button>
                             </div>
                         </form>
 
@@ -350,15 +350,10 @@
     @endif
     @endif
 
-    <button onclick="goBack()" class="btn btn-primary">戻る</button>
-
-
-    <script>
-        function goBack() {
-            window.history.back();
-        }
-    </script>
-
+    <a href="{{ route('jobs.index') }}" class="btn btn-primary">案件一覧に戻る</a>
+    @if(Auth::user()->user_type == 1)
+    <a href="{{ route('adminIndex') }}" class="btn btn-primary">請求書に戻る</a>
+    @endif
 
 </section>
 <!-- /.content -->

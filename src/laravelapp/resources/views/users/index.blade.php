@@ -64,7 +64,7 @@
                         <td>{{ $user->user_nickname }}</td>
                         <td>{{ $user->created_at }}</td>
                         <td>
-                            <a href="{{ route('users.edit', $user->id) }}">詳細・編集・停止</a>
+                            <a href="{{ route('users.edit', $user->id) }}">編集</a>
                         </td>
                         <td>
                             <a href="{{ route('dm.usersIndex', $user->id) }}">dm</a>
@@ -89,7 +89,7 @@
                         <td>{{ $adminUser->user_nickname }}</td>
                         <td>{{ $adminUser->created_at }}</td>
                         <td>
-                            <a href="{{ route('users.edit', $adminUser->id) }}">詳細・編集・停止</a>
+                            <a href="{{ route('users.edit', $adminUser->id) }}">編集</a>
                         </td>
                         <td>
                             <a href="{{ route('dm.usersIndex', $adminUser->id) }}">dm</a>
@@ -113,7 +113,7 @@
                         <td>{{ $writerUser->user_nickname }}</td>
                         <td>{{ $writerUser->created_at }}</td>
                         <td>
-                            <a href="{{ route('users.edit', $writerUser->id) }}">詳細・編集・停止</a>
+                            <a href="{{ route('users.edit', $writerUser->id) }}">編集</a>
                         </td>
                         <td>
                             <a href="{{ route('dm.usersIndex', $writerUser->id) }}">dm</a>

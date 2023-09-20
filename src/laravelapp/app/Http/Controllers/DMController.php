@@ -86,10 +86,12 @@ class DMController extends Controller
         // リレーションを利用してユーザー情報を取得
         $user = User::where('id', $receiver_id)->first();
 
+        $receiverName = User::find($receiver_id)->user_name;
         return view('dm.usersIndex', [
             'dms' => $dms,
             'receiver_id' => $receiver_id,
             'user' => $user,
+            'receiverName' => $receiverName,
         ]);
     }
 
@@ -127,7 +129,10 @@ class DMController extends Controller
         $dm->save();
 
         // 未読エントリを作成
-        $users = User::all();
+        $users = User::where('user_type', 1)
+            ->orWhere('id', $dm->receiver_id)
+            ->get();
+
         foreach ($users as $user) {
             UnreadDm::create([
                 'user_id' => $user->id,
@@ -167,16 +172,16 @@ class DMController extends Controller
         $dm->receiver_id = $userId; // 受信者のユーザーIDを設定
         $dm->save();
 
-        // unread_dm テーブルに未読エントリを作成
-        $users = User::all();
+        // 未読エントリを作成
+        $users = User::where('user_type', 1)
+            ->orWhere('id', $dm->receiver_id)
+            ->get();
+
         foreach ($users as $user) {
-            // 送信者のユーザーIDと受信者のユーザーIDが異なる場合のみ未読エントリを作成
-            if ($user->id !== auth()->user()->id) {
-                UnreadDm::create([
-                    'user_id' => $user->id,
-                    'dm_id' => $dm->id, // 作成したDMのIDを使用
-                ]);
-            }
+            UnreadDm::create([
+                'user_id' => $user->id,
+                'dm_id' => $dm->id,
+            ]);
         }
 
         $receiverId = $userId;

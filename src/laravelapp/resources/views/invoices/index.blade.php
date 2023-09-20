@@ -65,16 +65,23 @@
 
                     <!-- Table row -->
                     <div class="row">
+
                         <div class="col-12 mb-3 d-flex justify-content-between">
                             @if(Auth::user()->user_type == 2)
-                            <a href="{{ route('invoices.index', ['billing_month' => $prevMonth]) }}" class="btn btn-secondary">先月</a>
+                            <a href="{{ route('invoices.index', ['prevMonth' => $prevMonth, 'billing_month' => $billingMonth]) }}" class="btn btn-secondary">前月: {{ $prevMonth }}</a>
                             @endif
-                            <!-- 現在の月 -->
-                            <span>請求月: {{ $currentMonth }}</span>
+
+                            <!-- 現在の月または$billingMonthを表示 -->
+                            <span>請求月: {{ $billingMonth }}</span>
+
                             @if(Auth::user()->user_type == 2)
-                            <a href="{{ route('invoices.index', ['billing_month' => $nextMonth]) }}" class="btn btn-secondary">来月</a>
+                            <a href="{{ route('invoices.index', ['nextMonth' => $nextMonth, 'billing_month' => $billingMonth]) }}" class="btn btn-secondary">来月: {{ $nextMonth }}</a>
                             @endif
                         </div>
+
+
+
+
                         <div class="col-12 table-responsive">
                             <table class="table table-striped">
                                 <thead>
@@ -101,7 +108,7 @@
                                     <td>{{ $job->job_reward + $job->job_travel_cost + $job->job_expense }} 円</td>
                                     <td>
 
-                                        <a href="{{ route('jobs.edit', ['id' => $job->id]) }}">詳細・編集・停止</a>
+                                        <a href="{{ route('jobs.edit', ['id' => $job->id]) }}">詳細</a>
                                     </td>
                                 </tr>
 
@@ -157,9 +164,9 @@
                     <div class="row no-print">
                         <div class="col-12 d-flex justify-content-end align-items-center">
                             @if(Auth::check() && Auth::user()->user_type != 1)
-                            <form action="{{ route('invoices.pdf') }}" method="POST">
+                            <form action="{{ route('invoices.pdf') }}" method="GET">
                                 @csrf
-                                <input type="hidden" name="billing_month" value="{{ $currentMonth }}">
+                                <input type="hidden" name="billing_month" value="{{ $billingMonth }}">
                                 <button type="submit" class="btn btn-primary" style="margin-right: 5px;">
                                     <i class="fas fa-download"></i> PDFを作成
                                 </button>
@@ -182,6 +189,7 @@
                             @if(Auth::check() && Auth::user()->user_type != 1)
                             <form action="{{ route('updateInvoice', ['invoiceId' => $invoice->id]) }}" method="post">
                                 @csrf
+                                <input type="hidden" name="billing_month" value="{{ $billingMonth }}">
                                 <button type="submit" name="resubmit" class="btn btn-primary">再請求する</button>
                             </form>
                             @endif
@@ -193,16 +201,17 @@
                             @if(Auth::check() && Auth::user()->user_type != 1)
                             <form action="{{ route('createPdfAndSaveInvoice') }}" method="post">
                                 @csrf
-                                <input type="hidden" name="billing_month" value="{{ $currentMonth }}">
+                                <input type="hidden" name="billing_month" value="{{ $billingMonth }}">
                                 <button type="submit" name="submit" class="btn btn-primary">請求する</button>
                             </form>
                             @endif
                             @endif
 
 
+
                             @if(Auth::user()->user_type == 1)
                             <a href="{{ asset('storage/' . $file_path) }}" class="btn btn-primary" target="_blank">請求書を表示</a>
-                            <p>{{dd($file_path)}}</p>
+
 
                             @endif
 
@@ -213,6 +222,7 @@
                 <!-- /.invoice -->
             </div><!-- /.col -->
         </div><!-- /.row -->
+        <a href="{{ route('adminIndex') }}" class="btn btn-primary">戻る</a>
     </div><!-- /.container-fluid -->
 </section>
 
